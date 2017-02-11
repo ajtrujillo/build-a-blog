@@ -22,7 +22,8 @@ from google.appengine.ext import db
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+                               autoescape - True)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
@@ -37,7 +38,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        self.render('Hello world!')
+        self.render('base.html')
 
 app = webapp2.WSGIApplication([
     ('/', Handler), ('/blog', BlogHandler), ('/newpost', NewPostHandler)
