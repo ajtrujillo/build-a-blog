@@ -4,4 +4,11 @@
 
 <!-- html stuff here -->
 
+{% for thought in wordvomit %}
+    <div class = "thought">
+        <div class = "thought-title"> {{thought.title}} </div>
+        <pre class="thought-body">{{thought.wordart}}</pre>
+    </div>
+{% endfor %}
+
 {% endblock %}
