@@ -40,6 +40,12 @@ class MainPage(Handler):
     def get(self):
         self.render('base.html')
 
+class ViewPostHandler(webapp2.RequestHandler):
+    def get(self, id):
+        pass
+
 app = webapp2.WSGIApplication([
-    ('/', Handler), ('/blog', BlogHandler), ('/newpost', NewPostHandler)
+    ('/', Handler), ('/blog', BlogHandler),
+    ('/newpost', NewPostHandler),
+    (webapp2.Route('/blog/<id:\d+>', ViewPostHandler))
 ], debug=True)
