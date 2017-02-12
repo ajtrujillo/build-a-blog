@@ -37,8 +37,21 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kwargs))
 
 class MainPage(Handler):
+    def render_blog(self, title="", word_art="", error=""):
+        self.render("blog.html", title=title, word_art=word_art, error=error)
+
     def get(self):
-        self.write('asciichan!')
+        self.render_blog()
+
+    def post(self):
+        title = self.request.get("title")
+        word_art = self.request.get("word_art")
+
+        if title and word_art:
+            self.write("Thank you for sharing.")
+        else:
+            error = "We yearn for your title and words."
+            self.render_blog(title, word_art, error)
 
 # class ViewPostHandler(webapp2.RequestHandler):
 #     def get(self, id):
