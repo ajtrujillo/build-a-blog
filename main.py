@@ -18,7 +18,7 @@ import webapp2
 import jinja2
 import os
 #import cgi
-#from google.appengine.ext import db
+from google.appengine.ext import db
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -36,22 +36,33 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
 
+class UserSubmission(db.Model):
+    title = db.StringProperty(required = True)
+    wordart = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
 class MainPage(Handler):
-    def render_blog(self, title="", word_art="", error=""):
-        self.render("blog.html", title=title, word_art=word_art, error=error)
+    def render_blog(self, title="", wordart="", error=""):
+        wordvomit = db.GqlQuery("""select * from UserSubmission
+                            order by created desc limit 5""")
+        self.render("blog.html", title=title, wordart=wordart,
+                    error=error, wordvomit=wordvomit)
 
     def get(self):
         self.render_blog()
 
     def post(self):
         title = self.request.get("title")
-        word_art = self.request.get("word_art")
+        wordart = self.request.get("wordart")
 
-        if title and word_art:
-            self.write("Thank you for sharing.")
+        if title and wordart:
+            w = UserSubmission(title=title, wordart=wordart)
+            w.put()
+
+            self.redirect("/")
         else:
-            error = "We yearn for your title and words."
-            self.render_blog(title, word_art, error)
+            error = "We require your title and your blog content."
+            self.render_blog(title, wordart, error)
 
 # class ViewPostHandler(webapp2.RequestHandler):
 #     def get(self, id):

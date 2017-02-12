@@ -15,7 +15,7 @@
 
     <label>
         <div>Give Us Your Feels</div>
-        <textarea name= "word_art"> {{word_art}} </textarea>
+        <textarea name= "wordart"> {{wordart}} </textarea>
     </label>
 
     <div class="error"> {{error}} </div>
@@ -23,5 +23,14 @@
     <input type="submit">
 
 </form>
+
+<hr>
+
+{% for thought in wordvomit %}
+    <div class = "thought">
+        <div class = "thought-title"> {{thought.title}} </div>
+        <pre class="thought-body">{{thought.wordart}}</pre>
+    </div>
+{% endfor %}
 
 {% endblock %}
