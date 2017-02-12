@@ -15,22 +15,22 @@
 # limitations under the License.
 #
 import webapp2
-import cgi
 import jinja2
 import os
-from google.appengine.ext import db
+#import cgi
+#from google.appengine.ext import db
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                               autoescape - True)
+                               autoescape = True)
 
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
         self.response.out.write(*args, **kwargs)
 
-    def render_str(selfself, template, **params):
-        t=jinja_env.get_template(template)
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
         return t.render(params)
 
     def render(self, template, **kwargs):
@@ -38,14 +38,15 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        self.render('base.html')
+        self.write('asciichan!')
 
-class ViewPostHandler(webapp2.RequestHandler):
-    def get(self, id):
-        pass
+# class ViewPostHandler(webapp2.RequestHandler):
+#     def get(self, id):
+#         pass
 
 app = webapp2.WSGIApplication([
-    ('/', Handler), ('/blog', BlogHandler),
-    ('/newpost', NewPostHandler),
-    (webapp2.Route('/blog/<id:\d+>', ViewPostHandler))
+    ('/', MainPage),
+    #('/blog', BlogHandler),
+    #('/newpost', NewPostHandler),
+    #(webapp2.Route('/blog/<id:\d+>', ViewPostHandler))
 ], debug=True)
