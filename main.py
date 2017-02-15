@@ -9,6 +9,7 @@ template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True)
 
+# making a helper class
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
         self.response.out.write(*args, **kwargs)
@@ -20,6 +21,7 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
 
+#gql stuff here
 class UserSubmission(db.Model):
     title = db.StringProperty(required = True)
     wordart = db.TextProperty(required = True)
@@ -28,50 +30,60 @@ class UserSubmission(db.Model):
 
 
 class MainPage(Handler):
-    def render_blog(self, title="", wordart="", error=""):
-        wordvomit = db.GqlQuery("""select * from UserSubmission
-                            order by created desc limit 5""")
+    def render_blog_form(self, title="", wordart="", error=""):
         self.render("blog.html", title=title, wordart=wordart,
-                    error=error, wordvomit=wordvomit)
+                    error=error)
 
     def get(self):
-        self.render_blog()
+        self.render_blog_form()
 
     def post(self):
         title = self.request.get("title")
         wordart = self.request.get("wordart")
 
         if title and wordart:
-#            moving to NewPostHandler class
-#            w = UserSubmission(title=title, wordart=wordart)
-#            w.put()
             self.redirect("/newpost")
+            return
+
         else:
             error = "A title and blog content are required."
             self.render_blog(title, wordart, error)
 
-class NewPostHandler(Handler): #Do I want it to inherit from MainPage?
+
+class ViewPostHandler(Handler):
 
     def render_blog_post(self, title="", wordart=""):
-        self.render("newpost.html", title=title, wordart=wordart)
+        blog_post= db.GqlQuery("""select * from UserSubmission where id == %s""" %(id))
+        self.render("newpost.html", title=title, wordart=wordart, id=id)
 
-    def get(self):
-        w = UserSubmission(title=title, wordart=wordart)
-        w.put()
-        w.render_blog_post()
-
-class ViewPostHandler(webapp2.RequestHandler):
-    #pass
     def get(self, id):
         #blog_id = UserSubmission(id=id)
         #return blog_id
         #id=5
         self.response.write(5)
+        #post.key().id()
+        self.render_blog_post(!!!!)
+
+    def post(self):
+         title = self.request.get("title")
+         wordart = self.request.get("wordart")
+         usersubmission = UserSubmission(title=title, wordart=wordart)
+         usersubmission.put()
+         usersubmission.render_blog_post()
+
+
+class ListHandler(Handler):
+    def get(self):
+        blog_list = db.GqlQuery("""select * from UserSubmission
+                            order by created desc limit 5""")
+        self.render("blog.html", title=title, wordart=wordart,
+                    error=error, blog_list=blog_list)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
+    (webapp2.Route('/blog/<id:\d+>', ViewPostHandler)),
     #('/blog', BlogHandler),
     ('/newpost', NewPostHandler),
-    (webapp2.Route('/blog/<id:\d+>', ViewPostHandler))
+
     #('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
