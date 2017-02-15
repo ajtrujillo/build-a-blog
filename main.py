@@ -26,12 +26,11 @@ class UserSubmission(db.Model):
     title = db.StringProperty(required = True)
     wordart = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
-    #id = db.Key.from_path.("UserSubmission", int(id))
 
 
 class MainPage(Handler):
-    def render_blog_form(self, title="", wordart="", error=""):
-        self.render("blog.html", title=title, wordart=wordart,
+    def render_blog_form(self, title="", words="", error=""):
+        self.render("blog.html", title=title, words=words,
                     error=error)
 
     def get(self):
@@ -39,51 +38,54 @@ class MainPage(Handler):
 
     def post(self):
         title = self.request.get("title")
-        wordart = self.request.get("wordart")
+        words = self.request.get("words")
 
-        if title and wordart:
+        if title and words:
             self.redirect("/newpost")
             return
 
         else:
             error = "A title and blog content are required."
-            self.render_blog(title, wordart, error)
+            self.render_blog_form(title, words, error)
 
 
 class ViewPostHandler(Handler):
 
-    def render_blog_post(self, title="", wordart=""):
-        blog_post= db.GqlQuery("""select * from UserSubmission where id == %s""" %(id))
-        self.render("newpost.html", title=title, wordart=wordart, id=id)
+    def render_blog_post(self, title="", words="", error=""):
+        blog_id = UserSubmission(title, words, id)
+        blog_id.Post.get_by_id
+        self.render("/blog/<id:\d+>", title=title, words=words, error=error)
 
     def get(self, id):
-        #blog_id = UserSubmission(id=id)
-        #return blog_id
-        #id=5
-        self.response.write(5)
-        #post.key().id()
-        self.render_blog_post(!!!!)
+        if id:
+            self.render_blog_post()
+        else:
+            error = "There is no blog post with that ID."
+            self.render_blog_post(title, words, error)
 
     def post(self):
-         title = self.request.get("title")
-         wordart = self.request.get("wordart")
-         usersubmission = UserSubmission(title=title, wordart=wordart)
-         usersubmission.put()
-         usersubmission.render_blog_post()
+        title = self.request.get("title")
+        words = self.request.get("words")
+        usersubmission = UserSubmission(title=title, words=words)
+        usersubmission.put()
+        usersubmission.render_blog_post()
 
 
 class ListHandler(Handler):
+
+    def render_list(self):
+        blog_list = db.GqlQuery("""select * from UserSubmission order by created desc limit 5""")
+        self.render("list.html", blog_list=blog_list)
+                    #also title=title, wordart=wordart?
+
     def get(self):
-        blog_list = db.GqlQuery("""select * from UserSubmission
-                            order by created desc limit 5""")
-        self.render("blog.html", title=title, wordart=wordart,
-                    error=error, blog_list=blog_list)
+        self.render_blog_list()
+
+
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
-    (webapp2.Route('/blog/<id:\d+>', ViewPostHandler)),
-    #('/blog', BlogHandler),
-    ('/newpost', NewPostHandler),
-
-    #('/blog/<id:\d+>', ViewPostHandler)
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
+    ('/list', ListHandler),
+    #('/newpost', NewPostHandler),
 ], debug=True)

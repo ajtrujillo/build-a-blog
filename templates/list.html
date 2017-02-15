@@ -2,14 +2,13 @@
 
 {% block content %}
 
-<!-- html stuff here. where does blog_id go? -->
+<!-- html stuff here -->
 
 {% for thought in blog_list %}
     <div class = "thought">
         <div class = "thought-title"> {{thought.title}} </div>
-        <pre class="thought-body">{{thought.words}}</pre>
+        <pre class="thought-body">{{thought.words}} </pre>
     </div>
-    <div class="error"> {{error}} </div>
 {% endfor %}
 
 {% endblock %}
