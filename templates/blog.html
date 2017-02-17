@@ -3,25 +3,11 @@
 {% block content %}
 
 <!-- html stuff here -->
-<h1>Deep Thoughts Go Here</h1>
 
-
-<!--this is the form-->
-<form method = "post">
-    <label>
-        <div>Title</div>
-        <input type = "text" name= "title" value="{{title}}">
-    </label>
-
-    <label>
-        <div>Give Us Your Feels</div>
-        <textarea name= "words"> {{words}} </textarea>
-    </label>
-
+    <div class = "thought">
+        <div class = "thought-title"> {{submission.title}} </div>
+        <pre class="thought-body">{{submission.words}}</pre>
+    </div>
     <div class="error"> {{error}} </div>
-
-    <input type="submit">
-
-</form>
 
 {% endblock %}

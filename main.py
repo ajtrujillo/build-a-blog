@@ -25,14 +25,14 @@ class Handler(webapp2.RequestHandler):
 class UserSubmission(db.Model):
 
     title = db.StringProperty(required = True)
-    wordart = db.TextProperty(required = True)
+    words = db.TextProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
 #landing page handler where user submits a title and body
-class MainPage(Handler):
+class NewPost(Handler):
 
     def render_blog_form(self, title="", words="", error=""):
-        self.render("blog.html", title=title, words=words,
+        self.render("newpost.html", title=title, words=words,
                     error=error)
 
     def get(self):
@@ -41,9 +41,11 @@ class MainPage(Handler):
     def post(self):
         title = self.request.get("title")
         words = self.request.get("words")
+        post = UserSubmission(title=title, words=words)
+        post.put()
 
         if title and words:
-            self.redirect("/blog/<id:\d+>") #was (/newpost)
+            self.redirect("/list")
             return
 
         else:
@@ -53,47 +55,27 @@ class MainPage(Handler):
 #handler where we can see just the last post submitted in its entirety
 class ViewPostHandler(Handler):
 
-    def render_blog_post(self, title="", words="", error="", id=""):
-        blog_id = UserSubmission(title, words, id)
-        blog_id.Post.get_by_id
-        self.render("/blog/<id:\d+>", title=title, words=words, error=error)
+    def get(self, blog_id):
+        submission = UserSubmission.get_by_id(int(blog_id))
 
-    def get(self, id):
-        self.render_blog_post()
+        if submission:
+            self.render("blog.html", submission=submission)
 
-    def post(self):
-        title = self.request.get("title")
-        words = self.request.get("words")
-
-        if id:
-            self.render_blog_post(title, words)
         else:
             error = "There is no blog post with that ID."
-            self.render_blog_post(title, words, error)
+            self.render("blog.html", error=error)
 
-        #usersubmission = UserSubmission(title=title, words=words)
-        #usersubmission.put()
-        #usersubmission.render_blog_post()
 
 #handler to see list of last five posts
 class ListHandler(Handler):
 
-    def render_list(self):
-        #unclear as to the below
-        #post = Post.get_by_id
-        #post.put()
-        #link = post.key().id()
+    def get(self):
         blog_list = db.GqlQuery("""select * from UserSubmission order by created desc limit 5""")
         self.render("list.html", blog_list=blog_list)
-                    #also title=title, words=words? where is the link inserted?
-
-    def get(self):
-        self.render_list()
-
 
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
-    webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
+    ('/newpost', NewPost),
+    webapp2.Route('/blog/<blog_id:\d+>', ViewPostHandler),
     ('/list', ListHandler),
 ], debug=True)
